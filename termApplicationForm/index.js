@@ -1,33 +1,22 @@
+const { getTermApplicationSchema } = require('./termHelper')
 
 async function routes(fastify, optons, done) {
-  //validation schema
-
-  const item = {
-    type: 'object',
-    properties: {
-      _id: { type: 'string' },
-      name: { type: 'string' }
-    }
-  }
-
   fastify.get('/', async (req, reply) => {
     reply.send({ hello: 'world' })
   })
 
   fastify.get('/getClaimSchema', async (req, reply) => {
-    // This collection comes from "mongodb://mongo1/mydb"
-    const db = fastify.mongo.db
 
-    // Access a collection
-    const collection = db.collection('counters')
+    // const allSchema = new FormSchemaComponent(formBasicTypes)
+    // const a = allSchema.prepareClaimSchema()
 
-    // Perform database operations
-    const users = await collection.find().toArray()
+    // reply.send({ allSchema: a })
+
+    const users = await getTermApplicationSchema(fastify)
 
     reply.send(users)
   })
   //console.log(collection)
   done()
-
 }
 module.exports = routes
