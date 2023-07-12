@@ -30,5 +30,26 @@ exports.claimConstants = {
   COUNTRY: 'Country',
   ENTER_OTP: 'Enter otp',
   CLAIM_INTIMATION_DETAILS: 'Claim Intimation Details',
-  CLAIM_REGISTRATION: 'Claim Registration'
+  CLAIM_REGISTRATION: 'Claim Registration',
+  ORIGINAL_POLICY_DOCUMENT: 'Original Policy Document',
+  DEATH_CERTIFICATE: 'Death Certificate',
+  COPY_OF_CANCELLED_CHEQUE_OR_BANK_ACCOUNT_PASSBOOK: 'Copy of cancelled cheque or bank account passbook',
+  NOMINEE_CLAIMANT_PHOTO_IDENTITY_ADDRESS_PROOF: "Nominee's/Claimant photo identity & address proof",
+  DEATH_IN_HOSPITAL: 'Death in Hospital ?',
+  COPY_OF_MEDICAL_RECORDS_ADMISSION_NOTES_DISCHARGE_DEATH_SUMMARY_TEST_REPORTS_ETC:
+    'Copy of Medical Records (Admission Notes, Discharge/ Death Summary, Test Reports etc.)',
+  ATTENDING_PHYSICIANS_STATEMENT_FORM: 'Attending Physician’s statement (Form)',
+  EMPLOYER_CERTIFICATE: 'Employer certificate',
+  FIR_OR_PANCHNAMA_POLICE_COMPLAINT: 'FIR or Panchnama / Police complaint',
+  POST_MORTEM_REPORT: 'Post Mortem Report',
+  FINAL_POLICE_INVESTIGATION_REPORT: 'Final Police Investigation Report (if any)',
+  CRITICAL_ILLNESS_CLAIM_FORM: 'Critical illness Claim form',
+  ATTESTED_COPIES_OF_MEDICAL_RECORDS_INDOOR_PAPERS_OF_THE_HOSPITAL: 'Attested copies of medical records/ indoor papers of the hospital',
+  HOSPITAL_DISCHARGE_SUMMARY: 'Hospital discharge summary',
+  HOSPITAL_BILLS: 'Hospital bills',
+  DISABILITY_BENEFIT_CLAIM_FORM: 'Disability Benefit Claim form',
+  FIRST_INFORMATION_REPORT_FIR_IN_CASE: 'First Information Report (FIR), in case',
+  HOSPITAL_AND_SURGICAL_CARE_CLAIM_FORM: 'Hospital and Surgical Care Claim form',
+  MATURITY_DISCHARGE_VOUCHER_IN_THE_FORMAT_SHARED_BY_THE_INSURER_ALONG_WITH_INTIMATION:
+    'Maturity Discharge Voucher in the format shared by the Insurer along with intimation'
 }

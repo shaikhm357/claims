@@ -1,117 +1,125 @@
 const difference = require('lodash/difference')
 const has = require('lodash/has')
 const isUndefined = require('lodash/isUndefined')
-const { prepareClaimSchema } = require('./data')
-// const { dbData } = require('./dbData')
-const { dbData } = require('./updatedSchemaDbData')
 const FormSchemaComponent = require('../formComponents/formSchemaComponent')
 const formBasicTypes = require('../formComponents/formBasicTypes')
+const { mergeAllSchema } = require('../utils')
 
-const getTermApplicationSchema = async (fastify) => {
-  // This collection comes from "mongodb://mongo1/mydb"
-  const db = fastify.mongo.db
+class TermHelper {
+  getFilteredSchema = (prepareClaimSchema, dbData, schemaName) => {
+    try {
+      let allSchemaName = {}
+      allSchemaName[schemaName] = {}
+      allSchemaName[schemaName].items = []
 
-  // Access a collection
-  // const collection = db.collection('counters')
-  const collection = db.collection('pincode')
+      //buld the structure similar to schemamap
+      Object.entries(prepareClaimSchema[schemaName].schema.properties).map(([key, value]) => {
+        // console.log(key, '--->', value)
+        allSchemaName[schemaName].items.push(key)
+        if (has(value, 'properties')) {
+          allSchemaName[key] = {}
+          let allkeys = Object.keys(value.properties)
+          allSchemaName[key].items = [...allkeys]
+        }
+      })
 
-  // Perform database operations
-  // const users = await collection.find().toArray()
-  const users = await collection.findOne({ Pincode: 400017 })
-
-  //   const allSchema = new FormSchemaComponent(formBasicTypes)
-  //   const a = allSchema.prepareClaimSchema()
-  return users
-}
-
-const getClaimIntimationSchema = (prepareClaimSchema, dbData) => {
-  const getFilteredSchema = (prepareClaimSchema, dbData) => {
-    let allSchemaName = {}
-    allSchemaName.prepareClaimSchema = {}
-    allSchemaName.prepareClaimSchema.items = []
-
-    //buld the structure similar to schemamap
-    Object.entries(prepareClaimSchema.schema.properties).map(([key, value]) => {
-      // console.log(key, '--->', value)
-      allSchemaName.prepareClaimSchema.items.push(key)
-      if (has(value, 'properties')) {
-        allSchemaName[key] = {}
-        let allkeys = Object.keys(value.properties)
-        allSchemaName[key].items = [...allkeys]
+      const filterdSchema = function (toRemove, key, dbData, rootSchemaKey) {
+        for (let i = 0; i < toRemove.length; i++) {
+          if (key === rootSchemaKey) {
+            // console.log(prepareClaimSchema.schema.properties[toRemove[i]], 'in delete option-------------------------')
+            delete prepareClaimSchema[schemaName].schema.properties[toRemove[i]]
+            delete prepareClaimSchema[schemaName].uiSchema[toRemove[i]]
+          } else {
+            if (has(prepareClaimSchema[schemaName].schema.properties, key)) {
+              delete prepareClaimSchema[schemaName].schema.properties[key].properties[toRemove[i]]
+              delete prepareClaimSchema[schemaName].uiSchema[key][toRemove[i]]
+            }
+          }
+        }
+        return prepareClaimSchema
       }
-    })
-    // console.log(JSON.stringify(allSchemaName, null, 2))
-    // console.log(allSchemaName)
 
-    // console.log('\n----------------------------------------------------------------------------------------------------')
-    const filterdSchema = function (toRemove, key, dbData, rootSchemaKey) {
-      for (let i = 0; i < toRemove.length; i++) {
-        if (key === rootSchemaKey) {
-          // console.log(prepareClaimSchema.schema.properties[toRemove[i]], 'in delete option-------------------------')
-          delete prepareClaimSchema.schema.properties[toRemove[i]]
-          delete prepareClaimSchema.uiSchema[toRemove[i]]
-        } else {
-          if (has(prepareClaimSchema.schema.properties, key)) {
-            delete prepareClaimSchema.schema.properties[key].properties[toRemove[i]]
-            delete prepareClaimSchema.uiSchema[key][toRemove[i]]
+      Object.entries(dbData.schemaMap[schemaName]).forEach(([key, value]) => {
+        if (key === 'items') {
+          key = schemaName
+          let temp = value
+          value = {}
+          value.items = temp
+        }
+        // console.log(key, '----> ', value)
+        if (has(allSchemaName, key)) {
+          let toRemove = difference(allSchemaName[key]['items'], value.items)
+          filterdSchema(toRemove, key, dbData, schemaName)
+        }
+      })
+      return prepareClaimSchema
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+  getClaimSchema = (prepareClaimSchema, dbData, schemaName) => {
+    try {
+      const filterdSchema = this.getFilteredSchema(prepareClaimSchema, dbData, schemaName)
+      // console.log(JSON.stringify(filterdSchema, null, 2))
+      const pushDdValue = (dbb, schemaValue) => {
+        if (!isUndefined(dbb)) {
+          for (let i = 0; i < dbb.length; i++) {
+            schemaValue.enum.push(dbb[i].code)
+            schemaValue.enumNames.push(dbb[i].description)
           }
         }
       }
-      return prepareClaimSchema
-    }
-
-    Object.entries(dbData.schemaMap.prepareClaimSchema).forEach(([key, value]) => {
-      let [rootSchemaKey] = Object.keys(dbData.schemaMap)
-      if (key === 'items') {
-        key = rootSchemaKey
-        let temp = value
-        value = {}
-        value.items = temp
-      }
-      // console.log(key, '----> ', value)
-      if (has(allSchemaName, key)) {
-        // console.log(allSchemaName[key]['items'])
-        // console.log(allSchemaName[key].items)
-        let toRemove = difference(allSchemaName[key]['items'], value.items)
-        filterdSchema(toRemove, key, dbData, rootSchemaKey)
-      }
-    })
-
-    // console.log('///////////////////////////////////////////////////////////////////////////////////////////')
-    // console.log(JSON.stringify(prepareClaimSchema, null, 2))
-    return prepareClaimSchema
-  }
-  const filterdSchema = getFilteredSchema(prepareClaimSchema, dbData)
-
-  // console.log(JSON.stringify(filterdSchema, null, 2))
-  const pushDdValue = (dbb, schemaValue) => {
-    console.log(dbb.length)
-    for (let i = 0; i < dbb.length; i++) {
-      schemaValue.enum.push(dbb[i].code)
-      schemaValue.enumNames.push(dbb[i].description)
-    }
-  }
-
-  const addDropdownValues = (filterdSchema, dbData) => {
-    Object.entries(filterdSchema.schema.properties).forEach(([key, value]) => {
-      if (has(value, 'properties')) {
-        Object.entries(value.properties).forEach(([nestedKey, nestedValue]) => {
-          if (has(nestedValue, 'enum') && !isUndefined(dbData[key][nestedKey])) {
-            // console.log('schemaValue======>', nestedValue, '\n')
-            // console.log('dbenumlist=====>', dbData[key][nestedKey], '\n')
-            pushDdValue(dbData[key][nestedKey], nestedValue)
+      // passing dbData for dd values as dbData.dropDownList
+      const addDropdownValues = (filterdSchema, dbData) => {
+        Object.entries(filterdSchema.schema.properties).forEach(([key, value]) => {
+          if (has(value, 'properties')) {
+            Object.entries(value.properties).forEach(([nestedKey, nestedValue]) => {
+              if (has(nestedValue, 'enum') && !isUndefined(dbData[key][nestedKey])) {
+                // console.log('schemaValue======>', nestedValue, '\n')
+                // console.log('dbenumlist=====>', dbData[key][nestedKey], '\n')
+                pushDdValue(dbData[key][nestedKey], nestedValue)
+              }
+            })
+          }
+          if (has(value, 'enum')) {
+            pushDdValue(dbData[key], value)
           }
         })
+        return filterdSchema
       }
-      if (has(value, 'enum')) {
-        // console.log('root key ====>', value)
-        // console.log('database===>', dbData[key])
-        pushDdValue(dbData[key], value)
-      }
-    })
-    return filterdSchema
+      return addDropdownValues(filterdSchema[schemaName], dbData.dropDownList)
+    } catch (err) {
+      console.log(err)
+    }
   }
-  return { applicationForm: addDropdownValues(filterdSchema, dbData.dropDownList) }
+  getAllSchema = (mehodNames, prepareClaimSchema, allSchema, dbData) => {
+    try {
+      for (let i = 0; i < mehodNames.length; i++) {
+        const schema = prepareClaimSchema[mehodNames[i]]()
+        allSchema[mehodNames[i]] = this.getClaimSchema({ [mehodNames[i]]: schema }, dbData, mehodNames[i].toString())
+      }
+    } catch (err) {
+      console.log(err)
+    }
+  }
+  getTermApplicationSchema = async (fastify, insuranceType) => {
+    try {
+      const allSchema = {}
+      let mehodNames = []
+      const db = fastify.mongo.db
+      const collection = db.collection('claimApplicationForms')
+      const dbData = await collection.findOne({ insuranceType: insuranceType })
+      const prepareClaimSchema = new FormSchemaComponent(formBasicTypes)
+      mehodNames.push(prepareClaimSchema.prepareIntimationSchema.name)
+      mehodNames.push(prepareClaimSchema.prepareDocUploadSchema.name)
+      this.getAllSchema(mehodNames, prepareClaimSchema, allSchema, dbData)
+      const finalSchema = mergeAllSchema(allSchema)
+      return { claimApplicationForm: finalSchema }
+    } catch (err) {
+      console.error(err)
+    }
+  }
 }
-
-module.exports = { getTermApplicationSchema, getClaimIntimationSchema }
+const termHelper = new TermHelper()
+module.exports = termHelper
