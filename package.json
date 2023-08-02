@@ -4,8 +4,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "NODE_ENV=development NODE_CONFIG_DIR=../config DEBUG=dummyInsurerService*,oneaccess* node index.js",
-    "start:dev": "NODE_ENV=development NODE_CONFIG_DIR=../config DEBUG=dummyInsurerService*,oneaccess* nodemon index.js"
+    "start": "NODE_ENV=development NODE_CONFIG_DIR=../config DEBUG=claims_Service*,oneaccess* node index.js",
+    "start:dev": "NODE_ENV=development NODE_CONFIG_DIR=../config DEBUG=claims_Service*,oneaccess* node index.js",
+    "start:prod": "NODE_ENV=production NODE_CONFIG_DIR=../config node index.js"
   },
   "author": "",
   "license": "ISC",

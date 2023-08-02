@@ -7,7 +7,7 @@ async function routes(fastify, optons, done) {
   fastify.get('/claim/:insuranceType/getClaimSchema', async (req, reply) => {
     try {
       const { insuranceType } = req.params
-      if (isUndefined(insuranceType)) {
+      if (isUndefined(insuranceType) || insuranceType == null || insuranceType == '') {
         throw new Error('insuranceType is Required')
       }
       const termApplicationSchemas = await termHelper.getTermApplicationSchema(fastify, insuranceType)
