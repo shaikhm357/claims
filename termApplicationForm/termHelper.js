@@ -5,8 +5,13 @@ const FormSchemaComponent = require('../formComponents/formSchemaComponent')
 const formBasicTypes = require('../formComponents/formBasicTypes')
 const { mergeAllSchema } = require('../utils')
 
+let termHelper
 class TermHelper {
-  getFilteredSchema = (prepareClaimSchema, dbData, schemaName) => {
+  constructor(app) {
+    this.app = app
+  }
+
+  getFilteredSchema(prepareClaimSchema, dbData, schemaName) {
     try {
       let allSchemaName = {}
       allSchemaName[schemaName] = {}
@@ -58,7 +63,7 @@ class TermHelper {
     }
   }
 
-  getClaimSchema = (prepareClaimSchema, dbData, schemaName) => {
+  getClaimSchema(prepareClaimSchema, dbData, schemaName) {
     try {
       const filterdSchema = this.getFilteredSchema(prepareClaimSchema, dbData, schemaName)
       // console.log(JSON.stringify(filterdSchema, null, 2))
@@ -90,10 +95,11 @@ class TermHelper {
       }
       return addDropdownValues(filterdSchema[schemaName], dbData.dropDownList)
     } catch (err) {
-      console.log(err)
+      console.error(err)
     }
   }
-  getAllSchema = (mehodNames, prepareClaimSchema, allSchema, dbData) => {
+
+  getAllSchema(mehodNames, prepareClaimSchema, allSchema, dbData) {
     try {
       for (let i = 0; i < mehodNames.length; i++) {
         const schema = prepareClaimSchema[mehodNames[i]]()
@@ -103,13 +109,17 @@ class TermHelper {
       console.log(err)
     }
   }
-  getTermApplicationSchema = async (fastify, insuranceType) => {
+
+  async getTermApplicationSchema(insuranceType) {
     try {
       const allSchema = {}
       let mehodNames = []
-      const db = fastify.mongo.db
+      const db = this.app.mongo.db
       const collection = db.collection('claimApplicationForms')
       const dbData = await collection.findOne({ insuranceType: insuranceType })
+      if (!dbData) {
+        throw new Error('Failed to find Data in db collection')
+      }
       const prepareClaimSchema = new FormSchemaComponent(formBasicTypes)
       mehodNames.push(prepareClaimSchema.prepareIntimationSchema.name)
       mehodNames.push(prepareClaimSchema.prepareDocUploadSchema.name)
@@ -121,5 +131,13 @@ class TermHelper {
     }
   }
 }
-const termHelper = new TermHelper()
-module.exports = termHelper
+
+TermHelper.create = (app) => {
+  if (isUndefined(termHelper)) {
+    termHelper = new TermHelper(app)
+    app.log.debug('TermHelper:create : Created new termHelper')
+  }
+  return termHelper
+}
+
+module.exports = TermHelper

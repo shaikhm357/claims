@@ -3,12 +3,12 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "mocha",
     "start": "NODE_ENV=development NODE_CONFIG_DIR=../config DEBUG=claims_Service*,oneaccess* node index.js",
     "start:dev": "NODE_ENV=development NODE_CONFIG_DIR=../config DEBUG=claims_Service*,oneaccess* node index.js",
     "start:prod": "NODE_ENV=production NODE_CONFIG_DIR=../config node index.js"
   },
-  "author": "",
+  "author": "Mahboob",
   "license": "ISC",
   "description": "",
   "dependencies": {
@@ -16,7 +16,13 @@
     "config": "^3.3.9",
     "dotenv": "^16.1.4",
     "fastify": "^4.18.0",
+    "fastify-plugin": "^4.5.1",
     "lodash": "^4.17.21",
     "oneaccess-infra": "git+https://coradius:YgB6PUHqqUzXx49srqAU@bitbucket.org/smartcovr_platform/oneaccess-infra.git#develop"
+  },
+  "devDependencies": {
+    "chai": "^4.3.7",
+    "mocha": "^10.2.0",
+    "supertest": "^6.3.3"
   }
 }

@@ -22,7 +22,6 @@ fastify.get('/pincode/:id', async (req, reply) => {
     const pincode = req.params.id
     const db = fastify.mongo.db
     const collection = db.collection('pincode')
-
     const pinCodeDetails = await collection.findOne({ Pincode: Number(pincode) })
     reply.code(200).send(pinCodeDetails)
   } catch (err) {
@@ -30,15 +29,19 @@ fastify.get('/pincode/:id', async (req, reply) => {
   }
 })
 
-fastify.register(require('./termApplicationForm/index'))
+fastify.register(require('./termApplicationForm'))
 
 fastify.listen({ port: fastify.config.get('claimService.port'), host: fastify.config.get('claimService.host') }, (err) => {
   if (err) {
-    fastify.log.error('index', 'Fastify start error', {
-      code: oaErrors.FastifyStartError,
-      stack: err.stack,
-      message: err.message
-    })
+    fastify.log.error(
+      { index: 'Fastify start error' },
+      {
+        code: oaErrors.FastifyStartError,
+        stack: err.stack,
+        message: err.message
+      }
+    )
   }
-  fastify.log.info('index', `Server listening on ${fastify.server.address().port}`)
+  fastify.log.info({ index: `Server listening on ${fastify.server.address().port}` })
 })
+module.exports = fastify

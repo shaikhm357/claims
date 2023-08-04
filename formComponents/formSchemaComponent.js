@@ -1,8 +1,6 @@
 const { claimConstants } = require('../constant')
 const { mergeProperties } = require('../utils/index')
 const assign = require('lodash/assign')
-// const formBasicTypes = require('./formBasicTypes')
-
 class FormSchemaComponent {
   constructor(formBasicTypes) {
     this.formBasicTypes = formBasicTypes
@@ -297,6 +295,3 @@ class FormSchemaComponent {
   }
 }
 module.exports = FormSchemaComponent
-
-// const testSchema = new FormSchemaComponent(formBasicTypes)
-// console.log(JSON.stringify(testSchema.prepareClaimSchema(), null, 2))
